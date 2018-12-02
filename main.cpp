@@ -45,11 +45,15 @@ namespace {
 
 auto program_day1_part1(std::istream& i)->output_data;
 auto program_day1_part2(std::istream& i)->output_data;
+auto program_day2_part1(std::istream& i)->output_data;
+auto program_day2_part2(std::istream& i)->output_data;
 
 struct puzzle puzzles[] = {
     {"test", &test_program},
     {"11", &program_day1_part1},
-    {"12", &program_day1_part2}
+    {"12", &program_day1_part2},
+    {"21", &program_day2_part1},
+    {"22", &program_day2_part2},
 };
 
 
