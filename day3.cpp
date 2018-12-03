@@ -7,6 +7,7 @@
 
 #include <range/v3/utility/functional.hpp>
 #include <range/v3/algorithm/count_if.hpp>
+#include <range/v3/algorithm/find_if.hpp>
 
 namespace
 {
@@ -169,11 +170,9 @@ namespace
 		}
 		return claims;
 	}
-}
 
-auto program_day3_part1(std::istream& i)->output_data
-{
-	return parse_input(i).map([](std::vector<claim> const& claims) -> std::string {
+	auto get_owned_positions(gsl::span<const claim> claims) 
+		-> std::map<position, std::vector<int>> {
 		std::map<position, std::vector<int>> owned_positions;
 		for (claim const& c : claims) {
 			int i = c.starting_coord.x;
@@ -186,13 +185,38 @@ auto program_day3_part1(std::istream& i)->output_data
 				}
 			}
 		}
+		return owned_positions;
+	}
 
+}
+
+auto program_day3_part1(std::istream& i)->output_data
+{
+	return parse_input(i).map([](std::vector<claim> const& claims) -> std::string {
+		auto const owned_positions = get_owned_positions(claims);
 		return std::to_string(ranges::count_if(owned_positions, [](auto const& position_value) { return position_value.second.size() > 1; }));
 	});
 }
 auto program_day3_part2(std::istream& i) -> output_data
 {
 	return parse_input(i).map([](std::vector<claim> const& claims) -> std::string {
-		return "unimplemented";
+		auto const owned_positions = get_owned_positions(claims);
+		std::map<int, bool> tainted_claims;
+		for (auto const& [_, claims] : owned_positions)
+		{
+			if (claims.size() > 1) {
+				for (auto const claim : claims) {
+					tainted_claims[claim] = true;
+				}
+			} else {
+				auto const claim = claims.front();
+				if (tainted_claims.find(claim) == tainted_claims.end()) {
+					tainted_claims[claim] = false;
+				}
+			}
+		}
+
+		auto const it_found = ranges::find_if(tainted_claims, [](auto const pair) { return !pair.second; });
+		return std::to_string(it_found->first);
 	});
 }
