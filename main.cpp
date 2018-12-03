@@ -1,4 +1,5 @@
 #include <vector>
+#include <set>
 #include <string>
 #include <cstdio>
 
@@ -13,24 +14,46 @@
 #include "program_types.h"
 
 namespace {
-    auto get_puzzle_name(gsl::span<char const* const> args) -> std::string {
-        if(args.size() < 2) {
-            std::cout << "Enter the puzzle input identifer (DN): ";
+	struct puzzle_identifier
+	{
+		std::string day;
+		std::string part;
+	};
 
-            std::string filename;
-            std::getline(std::cin, filename);
+    auto get_puzzle_name(gsl::span<char const* const> args) -> puzzle_identifier {
+        if(args.size() < 3) {
+            std::cout << "Enter the puzzle input identifer (D N): ";
+
+			puzzle_identifier identifier;
+			std::cin >> identifier.day;
+			std::cin >> identifier.part;
 
             std::cout << std::endl;
             
-            return filename;
+            return identifier;
         } else {
-            return args[1];
+			return { args[1], args[2] };
         }
     }
        
-    struct puzzle {
+	struct puzzle_part
+	{
+		gsl::cstring_span<> name;
+		program_ptr program;
+	};
+	bool operator<(puzzle_part const& lhs, puzzle_part const& rhs)
+	{
+		return lhs.name < rhs.name;
+	}
+	bool operator==(puzzle_part const& lhs, puzzle_part const& rhs)
+	{
+		return lhs.name == rhs.name;
+	}
+
+    struct puzzle 
+	{
         gsl::cstring_span<> name;
-        program_ptr program;
+		std::set<puzzle_part> parts;
     };
 
     auto test_program(std::istream& i) -> output_data {
@@ -49,30 +72,34 @@ auto program_day2_part1(std::istream& i)->output_data;
 auto program_day2_part2(std::istream& i)->output_data;
 
 struct puzzle puzzles[] = {
-    {"test", &test_program},
-    {"11", &program_day1_part1},
-    {"12", &program_day1_part2},
-    {"21", &program_day2_part1},
-    {"22", &program_day2_part2},
+	{"1", { {"1", &program_day1_part1}, {"2", &program_day1_part2} } },
+	{"2", { {"1", &program_day2_part1}, {"2", &program_day2_part2} } },
 };
 
 
 int main(int argc, char const* argv[]) {
-    std::string const puzzle_name = get_puzzle_name(gsl::make_span<char const* const>(argv, argc));
+    puzzle_identifier const puzzle_name = get_puzzle_name(gsl::make_span<char const* const>(argv, argc));
 
-    auto const it_found = ranges::find(puzzles, puzzle_name, &puzzle::name);
-    if(it_found == std::end(puzzles)) {
-        std::cerr << "Invalid puzzle '" << puzzle_name << "'\n";
+    auto const it_found_day = ranges::find(puzzles, puzzle_name.day, &puzzle::name);
+    if(it_found_day == std::end(puzzles)) {
+        std::cerr << "Invalid puzzle day '" << puzzle_name.day << "'\n";
         return EXIT_FAILURE;
     }
 
-    std::ifstream file(puzzle_name + ".txt");
+    std::ifstream file(puzzle_name.day + ".txt");
     if(!file.is_open()) {
-        std::cerr << "Input missing '" << puzzle_name << ".txt'\n";
+        std::cerr << "Input missing '" << puzzle_name.day << ".txt'\n";
         return EXIT_FAILURE;
     }
 
-    output_data const output = it_found->program(file);
+	puzzle const& day = *it_found_day;
+	auto const it_found_part = ranges::find(day.parts, puzzle_name.part, &puzzle_part::name);
+	if (it_found_part == std::end(day.parts)) {
+		std::cerr << "Invalid puzzle part '" << puzzle_name.part << "'\n";
+		return EXIT_FAILURE;
+	}
+
+    output_data const output = it_found_part->program(file);
     if(!output) {
         input_error const& error = output.error();
         std::cerr << "Input error (line " << error.line << ") :" << error.message << "\n";
