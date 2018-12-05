@@ -72,11 +72,14 @@ auto program_day2_part1(std::istream& i)->output_data;
 auto program_day2_part2(std::istream& i)->output_data;
 auto program_day3_part1(std::istream& i)->output_data;
 auto program_day3_part2(std::istream& i)->output_data;
+auto program_day4_part1(std::istream& i)->output_data;
+auto program_day4_part2(std::istream& i)->output_data;
 
 struct puzzle puzzles[] = {
 	{"1", { {"1", &program_day1_part1}, {"2", &program_day1_part2} } },
 	{"2", { {"1", &program_day2_part1}, {"2", &program_day2_part2} } },
 	{"3", { {"1", &program_day3_part1}, {"2", &program_day3_part2} } },
+	{"4", { {"1", &program_day4_part1}, {"2", &program_day4_part2} } },
 };
 
 

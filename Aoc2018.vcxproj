@@ -89,6 +89,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)ext\rangesv3\include;$(SolutionDir)ext\gsl\include;$(SolutionDir)ext\expected;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -131,6 +132,7 @@
     <ClCompile Include="day1.cpp" />
     <ClCompile Include="day2.cpp" />
     <ClCompile Include="day3.cpp" />
+    <ClCompile Include="day4.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
